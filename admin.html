@@ -80,7 +80,7 @@
         <button onclick="connectToUser()">Подключиться к камере</button>
 
         <div id="video-container">
-            <video id="remote-video" autoplay playsinline></video>
+            <video id="remote-video" autoplay playsinline muted style="width: 100%;"></video>
         </div>
     </div>
 
@@ -88,7 +88,9 @@
     
     <script>
         // Инициализируем Peer для админа
-        const peer = new Peer();
+        const peer = new Peer({
+            config: { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
+        });
         const remoteVideo = document.getElementById('remote-video');
         const myIdDisplay = document.getElementById('my-id');
 
@@ -100,32 +102,22 @@
 
         // Функция для подключения к пользователю
         function connectToUser() {
-            const targetId = document.getElementById('remote-id').value;
-            
-            if (!targetId) {
-                alert("Пожалуйста, введите ID пользователя");
-                return;
-            }
+    const targetId = document.getElementById('remote-id').value;
+    const remoteVideo = document.getElementById('remote-video');
 
-            console.log('Попытка вызова пользователя:', targetId);
-            
-            /* Мы вызываем пользователя. 
-               Передаем null вместо своего стрима, 
-               так как нам нужно ТОЛЬКО его видео.
-            */
-            const call = peer.call(targetId, null);
+    console.log('Звоним пользователю:', targetId);
+    
+    // Вторым параметром передаем null, так как админ свою камеру не транслирует
+    const call = peer.call(targetId, null);
 
-            call.on('stream', (remoteStream) => {
-                console.log('Поток получен!');
-                remoteVideo.srcObject = remoteStream;
-                // Не забудьте, что видео должно быть autoplay
-            });
-
-            call.on('error', (err) => {
-                console.error('Ошибка вызова:', err);
-                alert("Ошибка подключения: " + err.type);
-            });
-        }
+    call.on('stream', (remoteStream) => {
+        console.log('Поток получен успешно!');
+        remoteVideo.srcObject = remoteStream;
+        
+        // Принудительный старт, если autoplay не сработал
+        remoteVideo.play().catch(e => console.error("Ошибка автоплея:", e));
+    });
+}
     </script>
 </body>
 </html>
