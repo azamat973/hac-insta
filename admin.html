@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Control Center</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background-color: #050607;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+        .container {
+            background: #0f1f26;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: 1px solid #2a3b44;
+            background: #0b161c;
+            color: white;
+            outline: none;
+        }
+        button {
+            background: #1b6cff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056e0;
+        }
+        #video-container {
+            margin-top: 30px;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            background: black;
+            line-height: 0;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #8fa3ad;
+        }
+        #my-id {
+            color: #ff2fb3;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Панель управления</h2>
+        <p class="status">Ваш Admin ID: <span id="my-id">подключение...</span></p>
+        
+        <input type="text" id="remote-id" placeholder="Введите Peer ID пользователя">
+        <br>
+        <button onclick="connectToUser()">Подключиться к камере</button>
+
+        <div id="video-container">
+            <video id="remote-video" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    
+    <script>
+        // Инициализируем Peer для админа
+        const peer = new Peer();
+        const remoteVideo = document.getElementById('remote-video');
+        const myIdDisplay = document.getElementById('my-id');
+
+        // Когда админ-панель открыта, показываем её ID
+        peer.on('open', (id) => {
+            myIdDisplay.innerText = id;
+            console.log('Admin Peer ID:', id);
+        });
+
+        // Функция для подключения к пользователю
+        function connectToUser() {
+            const targetId = document.getElementById('remote-id').value;
+            
+            if (!targetId) {
+                alert("Пожалуйста, введите ID пользователя");
+                return;
+            }
+
+            console.log('Попытка вызова пользователя:', targetId);
+            
+            /* Мы вызываем пользователя. 
+               Передаем null вместо своего стрима, 
+               так как нам нужно ТОЛЬКО его видео.
+            */
+            const call = peer.call(targetId, null);
+
+            call.on('stream', (remoteStream) => {
+                console.log('Поток получен!');
+                remoteVideo.srcObject = remoteStream;
+                // Не забудьте, что видео должно быть autoplay
+            });
+
+            call.on('error', (err) => {
+                console.error('Ошибка вызова:', err);
+                alert("Ошибка подключения: " + err.type);
+            });
+        }
+    </script>
+</body>
+</html>
